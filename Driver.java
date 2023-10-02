@@ -1,7 +1,8 @@
+import java.io.File;
 import java.util.Arrays;
 
 public class Driver {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Polynomial p = new Polynomial();
         System.out.println(p.evaluate(3));
         double[] c1 = { 6, 5 };
@@ -23,5 +24,10 @@ public class Driver {
         Polynomial t = p1.multiply(p2);
         System.out.println(Arrays.toString(t.coefficients));
         System.out.println(Arrays.toString(t.exponents));
+
+        Polynomial x = new Polynomial(new File("./polyTest.txt"));
+        System.out.println(Arrays.toString(x.coefficients));
+        System.out.println(Arrays.toString(x.exponents));
+        x.saveToFile("new.txt");
     }
 }

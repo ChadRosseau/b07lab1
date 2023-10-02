@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 public class Polynomial {
@@ -14,6 +15,46 @@ public class Polynomial {
     public Polynomial(double[] coefficients, int[] exponents) {
         this.coefficients = coefficients;
         this.exponents = exponents;
+    }
+
+    public Polynomial(File file) throws Exception {
+        // Read into scanner
+        Scanner scanner = new Scanner(file);
+        String polyString = scanner.nextLine();
+        scanner.close();
+
+        // Split on + or -
+        String[] segments = polyString.split("[\\+-]");
+
+        // Offset if beginning of string has sign
+        int offset = 0;
+        if (polyString.charAt(0) == '+' || polyString.charAt(0) == '-') offset = 1;
+
+        double[] newCoefficients = new double[segments.length - offset];
+        int[] newExponents = new int[segments.length - offset];
+
+        // Fill in info as positives only
+        for (int i = offset; i < segments.length; i++) {
+            String[] info = segments[i].split("x", -1);
+            newCoefficients[i - offset] = Double.parseDouble(info[0]);
+            // Assigns exponent as 0, 1 or e depending on info given.
+            newExponents[i - offset] = info.length > 1 ? (info[1] == "" ? 1 : Integer.parseInt(info[1])) : 0;
+        }
+
+        // Correct signs
+        int idx = 0;
+        for (int i = 0; i < polyString.length(); i++) {
+            if (polyString.charAt(i) == '-') {
+                newCoefficients[idx] *= -1;
+                idx++;
+            } else if (polyString.charAt(i) == '+') {
+                idx++;
+            }
+        }
+
+        // Assign to properties
+        this.coefficients = newCoefficients;
+        this.exponents = newExponents;
     }
 
     public Polynomial add(Polynomial poly) {
@@ -117,4 +158,35 @@ public class Polynomial {
     public boolean hasRoot(double x) {
         return this.evaluate(x) == 0;
     }
+
+    public void saveToFile(String filename) {
+        String output = "";
+        for (int i = 0; i < coefficients.length; i++) {
+            double coeff = coefficients[i];
+            int exp = exponents[i];
+
+            if (i > 0 && coeff >= 0) output += "+";
+            
+            // Converts integer double to just integer.
+            if (coeff % 1 == 0) output += (int)coeff;
+            else output += coeff;
+
+            if (exp > 1) {
+                output += "x";
+                output += exp;
+            }
+        }
+
+        System.out.println(output);
+
+        try {
+            FileWriter file = new FileWriter(filename);
+            file.write(output);
+            file.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+        }
+    }
+
+
 }
